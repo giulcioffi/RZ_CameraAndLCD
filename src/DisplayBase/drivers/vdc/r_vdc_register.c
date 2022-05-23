@@ -1653,7 +1653,6 @@ void VDC_CLUT (const vdc_graphics_type_t graphics_id, const vdc_clut_t * const p
         /* dummy read*/
         {
             volatile uint32_t wk = *(vdc_regaddr_clut[graphics_id]);
-            (void)wk;
         }
         /* CLUT table control register (GRx_CLUT)
            b16      GRx_CLT_SEL - CLUT table select signal - XOR, flip signal */
@@ -2662,7 +2661,6 @@ static void SetRwProcAbility_Write_0 (const vdc_onoff_t ability)
         *(scaler->scl1_pbuf_cnt) &= (uint32_t)~VDC_REG_BIT16;
         reg_data    = *(scaler->scl1_pbuf_cnt);
         dummy_read  = reg_data;
-        (void)dummy_read;
 
         VDC_ShrdPrmSetRwProcEnable(VDC_LAYER_ID_0_WR);
     }

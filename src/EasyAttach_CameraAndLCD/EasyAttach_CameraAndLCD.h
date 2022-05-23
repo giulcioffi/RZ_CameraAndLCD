@@ -28,7 +28,6 @@
   #define CAMERA_WIRELESS_CAMERA          0x0083
   #define CAMERA_RASPBERRY_PI             0x2000
   #define CAMERA_RASPBERRY_PI_WIDE_ANGLE  0x2001
-  #define CAMERA_RASPBERRY_PI_832X480     0x2002
 
   // shield-type
   #define SHIELD_AUDIO_CAMERA         1
@@ -83,8 +82,6 @@
     #include "CAMERA/RaspberryPi_config.h"
   #elif MBED_CONF_APP_CAMERA_TYPE == CAMERA_RASPBERRY_PI_WIDE_ANGLE
     #include "RaspberryPi_wide_angle_config.h"
-  #elif MBED_CONF_APP_CAMERA_TYPE == CAMERA_RASPBERRY_PI_832X480
-    #include "RaspberryPi_832x480_config.h"  
   #endif
 #endif
 
@@ -102,18 +99,12 @@
   #define TF043HV001A0                (0x0005)
   #define ATM0430D25                  (0x0006)
   #define FG040346DSSWBG03            (0x0007)
-  #define EP952                       (0x0008)
 
   #define GR_PEACH_RSK_TFT            (RSK_TFT|LCD_LVDS)
   #define LVDS_TO_HDMI                (TFP410PAP|LCD_LVDS)
   #define DVI_STICK                   (TFP410PAP)
-  
-  #if (1) /* GR-MANGO rev.B or later */
-    #define RGB_TO_HDMI               (EP952)
-  #else	/* GR-MANGO rev.A */
-    #define RGB_TO_HDMI               (TFP410PAP)
-  #endif 
- 
+  #define RGB_TO_HDMI                 (TFP410PAP)
+
   #ifndef MBED_CONF_APP_LCD_TYPE
     #if defined(TARGET_RZ_A1H)
       #define MBED_CONF_APP_LCD_TYPE    GR_PEACH_4_3INCH_SHIELD

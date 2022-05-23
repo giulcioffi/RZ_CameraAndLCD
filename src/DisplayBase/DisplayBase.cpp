@@ -23,9 +23,6 @@
 #include <string.h>
 #include "DisplayBase.h"
 #include "gr_board_vdc5.h"
-#if defined(TARGET_RZ_A2XX)
-#include "drivers/vdc/r_spea.h"
-#endif
 
 /**************************************************************************//**
  * @brief       Constructor of the DisplayBase class
@@ -94,9 +91,6 @@ DisplayBase::DisplayBase( void )
     _video_mipi_config.mipi_phy_timing.mipi_t_init_slave = 0x0000338Fu;
 
     memset(&_video_vin_setup, 0, sizeof(_video_vin_setup));
-    
-    /* SPEA */
-    memset(&_video_spea_config, 0, sizeof(_video_spea_config));
 #endif
 } /* End of constructor method () */
 
@@ -150,9 +144,6 @@ DisplayBase::Graphics_Video_init( video_input_sel_t video_input_sel, video_ext_i
     graphics_error_t error;
 
     if ((video_input_sel == INPUT_SEL_EXT)
-#if defined(TARGET_RZ_A1H)
-     || (video_input_sel == INPUT_SEL_VDEC)
-#endif /* TARGET_RZ_A1H */
      || (video_input_sel == INPUT_SEL_CEU)) {
         _video_input_sel = video_input_sel;
 
@@ -381,10 +372,6 @@ DisplayBase::Graphics_Read_Setting(
     rect.hw = gr_rect->hw;
     rect.vw = gr_rect->vw;
 
-#if defined(TARGET_RZ_A2XX)
-    full_screen = rect;
-#endif
-
     return (graphics_error_t)DRV_Graphics_Read_Setting(
                (drv_graphics_layer_t)layer_id,
                framebuff,
@@ -393,7 +380,6 @@ DisplayBase::Graphics_Read_Setting(
                (drv_wr_rd_swa_t)wr_rd_swa,
                (drv_rect_t *)&rect,
                (drv_clut_t *)gr_clut);
-
 } /* End of method Graphics_Read_Setting() */
 
 /**************************************************************************//**
@@ -412,101 +398,6 @@ DisplayBase::Graphics_Read_Change ( graphics_layer_t layer_id, void *  framebuff
     return (graphics_error_t)DRV_Graphics_Read_Change(
                (drv_graphics_layer_t)layer_id, framebuff );
 } /* End of method Graphics_Read_Change() */
-
-#if defined(TARGET_RZ_A2XX)
-/**************************************************************************//**
- * @brief       Graphics create surface processing
- *
- *              Description:<br>
- *              Setup Sprite
- *
- * @param[in]   gr_disp_cnf   : Graphics surface read config
- * @retval      VDC driver error code
-******************************************************************************/
-DisplayBase::graphics_error_t
-DisplayBase::Graphics_Read_Setting_SPEA(
-    graphics_layer_t    layer_id,
-    rect_t            * gr_rect)
-{
-    vdc_read_t spea_cnf;
-    vdc_error_t error;
-    vdc_start_t start;
-    vdc_gr_disp_sel_t disp_mode;
-
-
-    /* Read data parameter */
-    spea_cnf.gr_ln_off_dir
-        = VDC_GR_LN_OFF_DIR_INC;       /* Line offset address direction of the frame buffer */
-    spea_cnf.gr_flm_sel     = VDC_GR_FLM_SEL_FLM_NUM;          /* Selects a frame buffer address setting signal */
-    spea_cnf.gr_imr_flm_inv = VDC_OFF;                         /* Frame buffer number for distortion correction */
-    spea_cnf.gr_bst_md      = VDC_BST_MD_32BYTE;               /* Frame buffer burst transfer mode */
-    spea_cnf.gr_base        = (void *) VIRTUAL_FRAME_BASE_ADD; /* Frame buffer base address */
-    spea_cnf.gr_ln_off      = VIRTUAL_FRAME_STRAID;            /* Frame buffer line offset address */
-    spea_cnf.width_read_fb  = NULL;                            /* Width of the image read from frame buffer */
-    spea_cnf.adj_sel
-        = VDC_ON;                      /* Measures to decrease the influence by folding pixels/lines (on/off) */
-    spea_cnf.gr_format      = VDC_GR_FORMAT_ARGB8888;          /* Format of the frame buffer read signal */
-    spea_cnf.gr_ycc_swap
-        = VDC_GR_YCCSWAP_CBY0CRY1;         /* Controls swapping of data read from buffer in the YCbCr422 format */
-    spea_cnf.gr_rdswa       = VDC_WR_RD_WRSWA_32BIT;           /* Frame buffer swap setting */
-
-    /* Display area */
-    spea_cnf.gr_grc.vs = (uint16_t) full_screen.vs;            /* vertical start position */
-    spea_cnf.gr_grc.vw = (uint16_t) gr_rect->vw;               /* vertical display size */
-    spea_cnf.gr_grc.hs = (uint16_t) full_screen.hs;            /*horizontal start position*/
-    spea_cnf.gr_grc.hw = (uint16_t) gr_rect->hw;               /* horizontal display size */
-
-    disp_mode = VDC_DISPSEL_BLEND;
-    start.gr_disp_sel = &disp_mode;
-
-    error = R_VDC_ReadDataControl(VDC_CHANNEL_0, (vdc_layer_id_t)layer_id, &spea_cnf);
-    if (error == VDC_OK) {
-        error = R_VDC_StartProcess(VDC_CHANNEL_0, (vdc_layer_id_t)layer_id, &start);
-    }
-    if (error == VDC_OK) {
-        error = (vdc_error_t)R_SPEA_WindowOffset((vdc_layer_id_t)layer_id, 0, 0);
-    }
-    return (graphics_error_t)error;
-} /* End of method Graphics_Read_Setting_SPEA() */
-
-/**************************************************************************//**
- * @brief       Graphics surface read process changing and updating
- *
- *              Description:<br>
- *              Update Sprite settings.
- *
- * @param[in]   layer_id     : VDC Layer ID (2 or 3)
- * @param[in]   window_id    : SPEA window ID
- *                              - WINDOW_00 - WINDOW_15
- * @param[in]   sken         : Window ON/OFF.
- * @param[in]   size         : Window size.
- * @param[in]   pos          : Window start coordinates.
- * @param[in]   buffer       : Window read buffer address.
- * @retval      SPEA driver error code
-******************************************************************************/
-DisplayBase::graphics_error_t
-DisplayBase::Graphics_Update_Window_SPEA ( const graphics_layer_t layer_id, 
-                const video_spea_window_id_t window_id,
-                const video_spea_onoff_t sken,
-                const video_spea_sklym_t * size,
-                const video_spea_skpsm_t * pos,
-                const void * buffer)
-{
-    spea_error_t spea_error;
-
-    spea_error = R_SPEA_SetWindow((vdc_layer_id_t)layer_id, 
-                (spea_window_id_t)window_id,
-                (spea_onoff_t)sken,
-                (spea_sklym_t*)size,
-                (spea_skpsm_t*)pos,
-                buffer);
-    
-    if (spea_error == SPEA_OK) {
-        spea_error = R_SPEA_WindowUpdate((vdc_layer_id_t)layer_id);
-    }
-    return (graphics_error_t)spea_error;
-} /* End of method Graphics_Update_Window_SPEA() */
-#endif
 
 /**************************************************************************//**
  * @brief       Video surface write process setting

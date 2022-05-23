@@ -396,59 +396,6 @@ public:
         video_vin_output_swap_t  vin_output_swap;  /*!< Output data byte swap mode */
     } video_vin_setup_t;
 
-    /*! On/off */
-    typedef enum
-    {
-        SPEA_OFF    = 0,            /*!< Off */
-        SPEA_ON     = 1             /*!< On */
-    } video_spea_onoff_t;
-
-    /*! Window ID for SPEA */
-    typedef enum
-    {
-        WINDOW_00 = 0,
-        WINDOW_01,
-        WINDOW_02,
-        WINDOW_03,
-        WINDOW_04,
-        WINDOW_05,
-        WINDOW_06,
-        WINDOW_07,
-        WINDOW_08,
-        WINDOW_09,
-        WINDOW_10,
-        WINDOW_11,
-        WINDOW_12,
-        WINDOW_13,
-        WINDOW_14,
-        WINDOW_15,
-        WINDOW_NUM
-    } video_spea_window_id_t;
-
-    /*! Window position control parameter for SPEA */
-    typedef struct
-    {
-        int32_t x;                     /*!< Line offset address direction of the frame buffer */
-        int32_t y;                     /*!< Line offset address direction of the frame buffer */
-    } video_spea_skpsm_t;
-
-    /*! Window size control parameter for SPEA */
-    typedef struct
-    {
-        int32_t width;                 /*!< Line offset address direction of the frame buffer */
-        int32_t height;                /*!< Line offset address direction of the frame buffer */
-    } video_spea_sklym_t;
-
-    /*! Window control parameter for SPEA */
-    typedef struct
-    {
-        video_spea_window_id_t  window_id;   /*! Window ID for SPEA */
-        video_spea_onoff_t      sken;        /*! Window on/off for SPEA */
-        video_spea_skpsm_t      pos;         /*! Window position control parameter for SPEA */
-        video_spea_sklym_t      size;        /*! Window size control parameter for SPEA */
-        const void            * buffer;      /*! Window buffer control parameter for SPEA */
-    } video_spea_window_conf_t;
-
     /** Constructor method of display base object
      */
     DisplayBase( void );
@@ -605,55 +552,6 @@ public:
         graphics_layer_t    layer_id,
         void             *  framebuff);
 
-    /** Graphics create surface processing
-     *  @param[in]    layer_id            : Graphics layer ID <br />
-     *      - GRAPHICS_LAYER_2 : Layer 2
-     *      - GRAPHICS_LAYER_3 : Layer 3
-     *  @param[in]    gr_rect             : Graphics display area
-     *  @retval       Error code
-     */
-    graphics_error_t Graphics_Read_Setting_SPEA (
-        graphics_layer_t    layer_id,
-        rect_t            * gr_rect);
-
-    /** Graphics surface read process changing and updating
-     *  @param[in]    layer_id            : Graphics layer ID <br />
-     *      - GRAPHICS_LAYER_0 : Layer 0
-     *      - GRAPHICS_LAYER_1 : Layer 1
-     *      - GRAPHICS_LAYER_2 : Layer 2
-     *      - GRAPHICS_LAYER_3 : Layer 3
-     *  @param[in]    window_id    : SPEA window ID
-     *      - WINDOW_00 : Window 00
-     *      - WINDOW_01 : Window 01
-     *      - WINDOW_02 : Window 02
-     *      - WINDOW_03 : Window 03
-     *      - WINDOW_04 : Window 04
-     *      - WINDOW_05 : Window 05
-     *      - WINDOW_06 : Window 06
-     *      - WINDOW_07 : Window 07
-     *      - WINDOW_08 : Window 08
-     *      - WINDOW_09 : Window 09
-     *      - WINDOW_10 : Window 10
-     *      - WINDOW_11 : Window 11
-     *      - WINDOW_12 : Window 12
-     *      - WINDOW_13 : Window 13
-     *      - WINDOW_14 : Window 14
-     *      - WINDOW_15 : Window 15
-     *  @param[in]   sken         : Window ON/OFF.
-     *      - SPEA_OFF  : Off
-     *      - SPEA_ON   : On
-     *  @param[in]   size         : Window size.
-     *  @param[in]   pos          : Window start coordinates.
-     *  @param[in]   buffer       : Window read buffer address.
-     *  @retval       Error code
-     */
-    graphics_error_t Graphics_Update_Window_SPEA ( const graphics_layer_t layer_id, 
-                const video_spea_window_id_t window_id,
-                const video_spea_onoff_t sken,
-                const video_spea_sklym_t * size,
-                const video_spea_skpsm_t * pos,
-                const void * buffer);
-
     /** Video surface write process setting
      *  @param[in]    video_input_channel : Video input channel <br />
      *                If using digital input, this parameter is not referenced. <br />
@@ -727,10 +625,8 @@ protected:
     video_input_sel_t     _video_input_sel;
     video_ext_in_config_t _video_ext_in_config;
 #if defined(TARGET_RZ_A2XX)
-    video_mipi_param_t        _video_mipi_config;
-    video_vin_setup_t         _video_vin_setup;
-    video_spea_window_conf_t  _video_spea_config;
-    rect_t                     full_screen; 
+    video_mipi_param_t    _video_mipi_config;
+    video_vin_setup_t     _video_vin_setup;
 #endif
 };
 

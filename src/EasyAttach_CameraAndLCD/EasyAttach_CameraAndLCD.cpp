@@ -106,109 +106,6 @@ static const DisplayBase::lcd_config_t * lcd_port_init(DisplayBase& Display) {
     mbed::I2C mI2c_(I2C_SDA, I2C_SCL);
    #endif
     mI2c_.write(0x78, send_cmd, 3);
-#elif ((MBED_CONF_APP_LCD_TYPE & 0x00FF) == EP952)
-   #if defined(TARGET_RZ_A2M_SBEV) || defined(TARGET_SEMB1402)
-    mbed::I2C mI2c_(PD_5, PD_4);
-   #else
-    mbed::I2C mI2c_(I2C_SDA, I2C_SCL);
-   #endif
-
-    char i2cbuf[20];
-    //wait 10ms before turning on ep952 
-    DigitalOut ep952_rst(PK_5, 0);
-    rtos::ThisThread::sleep_for(10);
-    ep952_rst = 1;
-
-    i2cbuf[0]=0x00;
-    i2cbuf[1]=0x80;
-    mI2c_.write(0x52,i2cbuf,2);
-
-    i2cbuf[0]=0x40;
-    i2cbuf[1]=0x08;
-    mI2c_.write(0x52,i2cbuf,2);
-
-    i2cbuf[0]=0x05;
-    i2cbuf[1]=0x14;
-    mI2c_.write(0x52,i2cbuf,2);
-
-    i2cbuf[0]=0x7B;
-    i2cbuf[1]=0x00;
-    i2cbuf[2]=0x00;
-    i2cbuf[3]=0x00;
-    i2cbuf[4]=0x00;
-    i2cbuf[5]=0x01;
-    mI2c_.write(0x52,i2cbuf,6);
-
-    i2cbuf[0]=0x63;
-    i2cbuf[1]=0x00;
-    mI2c_.write(0x52,i2cbuf,2);
-
-    i2cbuf[0]=0x64;
-    i2cbuf[1]=0x16;
-    mI2c_.write(0x52,i2cbuf,2);
-
-    i2cbuf[0]=0x65;
-    i2cbuf[1]=0x0C;
-    mI2c_.write(0x52,i2cbuf,2);
-
-    i2cbuf[0]=0x74;
-    i2cbuf[1]=0x70;
-    i2cbuf[2]=0x01;
-    i2cbuf[3]=0x00;
-    i2cbuf[4]=0x00;
-    i2cbuf[5]=0x00;
-    i2cbuf[6]=0x00;
-    mI2c_.write(0x52,i2cbuf,6);
-
-    i2cbuf[0]=0x0A;
-    i2cbuf[1]=0x81;
-    mI2c_.write(0x52,i2cbuf,2);
-
-    i2cbuf[0]=0x33;
-    i2cbuf[1]=0x0F;
-    mI2c_.write(0x52,i2cbuf,2);
-
-    i2cbuf[0]=0x0E;
-    i2cbuf[1]=0x0D;
-    mI2c_.write(0x52,i2cbuf,2);
-
-    i2cbuf[0]=0x66;
-    i2cbuf[1]=0xBB;
-    i2cbuf[2]=0x10;
-    i2cbuf[3]=0xA0;
-    i2cbuf[4]=0x00;
-    i2cbuf[5]=0x04;
-    i2cbuf[6]=0x00;
-    i2cbuf[7]=0x00;
-    i2cbuf[8]=0x00;
-    i2cbuf[9]=0x00;
-    i2cbuf[10]=0x00;
-    i2cbuf[11]=0x00;
-    i2cbuf[12]=0x00;
-    i2cbuf[13]=0x00;
-    i2cbuf[14]=0x00;
-    mI2c_.write(0x52,i2cbuf,15);
-
-    i2cbuf[0]=0x3F;
-    i2cbuf[1]=0xF8;
-    mI2c_.write(0x52,i2cbuf,2);
-
-    i2cbuf[0]=0x0D;
-    i2cbuf[1]=0x80;
-    mI2c_.write(0x52,i2cbuf,2);
-
-    i2cbuf[0]=0x0C;
-    i2cbuf[1]=0x30;
-    mI2c_.write(0x52,i2cbuf,2);
-
-    i2cbuf[0]=0x08;
-    i2cbuf[1]=0x97;
-    mI2c_.write(0x52,i2cbuf,2);
-
-    i2cbuf[0]=0x01;
-    i2cbuf[1]=0x00;
-    mI2c_.write(0x52,i2cbuf,2);
-
 #elif (MBED_CONF_APP_LCD_TYPE == GR_PEACH_4_3INCH_SHIELD) || \
       (MBED_CONF_APP_LCD_TYPE == GR_PEACH_7_1INCH_SHIELD) || \
       (MBED_CONF_APP_LCD_TYPE == GR_PEACH_RSK_TFT)
@@ -346,8 +243,6 @@ static DisplayBase::graphics_error_t camera_init(DisplayBase& Display, uint16_t 
     RaspberryPi_config camera_cfg;
   #elif MBED_CONF_APP_CAMERA_TYPE == CAMERA_RASPBERRY_PI_WIDE_ANGLE
     RaspberryPi_wide_angle_config camera_cfg;
-  #elif MBED_CONF_APP_CAMERA_TYPE == CAMERA_RASPBERRY_PI_832X480
-    RaspberryPi_832x480_config camera_cfg;
   #else
     #error "No camera chosen. Please add 'config.camera-type.value' to your mbed_app.json (see README.md for more information)."
   #endif

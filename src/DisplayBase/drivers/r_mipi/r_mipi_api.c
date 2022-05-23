@@ -28,7 +28,6 @@ Includes   <System Includes> , "Project Includes"
 #include    <iodefine.h>
 
 #include    "r_mipi_api.h"
-#include    "r_mipi_user.h"
 
 /******************************************************************************
 Macro definitions
@@ -103,6 +102,9 @@ typedef enum
 /******************************************************************************
 Private global variables and functions
 ******************************************************************************/
+/* Static functions */
+static uint8_t calc_scale_passband(uint16_t scale_int, uint16_t scale_fra);
+
 /* Mipi Driver Status */
 static uint8_t gs_mipi_state;
 
@@ -440,6 +442,7 @@ e_mipi_error_t R_MIPI_Close(void (* const finalize_func)(uint32_t),  // @suppres
 e_mipi_error_t R_MIPI_Setup(const st_vin_setup_t * const vin_setup ) // @suppress("Non-API function naming")
 {
     e_mipi_error_t merr = MIPI_OK;
+    uint8_t scale_enable;
 
     /* Check MIPI State */
     if( gs_mipi_state != MIPI_STOP )
@@ -1075,3 +1078,30 @@ void R_VIN_InterruptHandler( uint32_t int_sense ) // @suppress("Non-API function
     }
 }   /* End of function R_VIN_InterruptHandler() */
 
+/**********************************************************************
+*
+* Function Name: calc_scale_passband
+* Description :  This function calculate video passband width
+* Arguments :    scale_int   : integral part of scaling factor
+*                scale_fra   : fractional part of scaling factor
+* Return Value : pass band width
+**********************************************************************/
+static uint8_t calc_scale_passband(uint16_t scale_int, uint16_t scale_fra)
+{
+    uint8_t mulm;
+    uint8_t width;
+
+    mulm = 1;
+    if (scale_int >= 8)
+    {
+        mulm = 4;
+    }
+    else if (scale_int >= 4)
+    {
+        mulm = 2;
+    }
+    /****** Calculate passband width ******/
+    width = (uint8_t) ((64 * (4096 * mulm)) / ((4096 * scale_int) + scale_fra));
+
+    return width;
+}   /* End of function calc_scale_passband() */
