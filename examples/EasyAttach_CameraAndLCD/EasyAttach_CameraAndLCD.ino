@@ -25,10 +25,12 @@
 *******************************************************************************/
 //#include "sample_select.h"
 
-REDIRECT_STDOUT_TO(Serial)
-
-#define MBED_CONF_APP_CAMERA CAMERA_RASPBERRY_PI
-#define MBED_CONF_APP_LCD DVI_STICK
+/*
+#define MBED_CONF_APP_CAMERA 1
+#define MBED_CONF_APP_CAMERA_TYPE CAMERA_RASPBERRY_PI
+#define MBED_CONF_APP_LCD 1
+#define MBED_CONF_APP_LCD_TYPE DVI_STICK
+*/
  
 // SAMPLE_PROGRAM_NO 18 : MIPI, DRP and LCD sample
 // If you want to know more about SimpleIsp, please refer to: https://github.com/d-kato/RZ_A2M_WebCamera_MIPI
@@ -224,7 +226,7 @@ static void drp_task(void) {
     button.fall(&button_fall);
  
     while (true) {
-        rtos::ThisThread::flags_wait_all(DRP_FLG_CAMER_IN);
+        //rtos::ThisThread::flags_wait_all(DRP_FLG_CAMER_IN);
         if (isp_wb_mode_req != isp_wb_mode) {
             isp_wb_mode = isp_wb_mode_req;
             switch (isp_wb_mode) {
@@ -263,12 +265,8 @@ static void drp_task(void) {
 }
  
 void setup() {
-    Serial.begin(115200);
-    while(!Serial) {}
-    Serial1.begin(115200);
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
-    Serial.println("START Camera and LCD example");
     delay(1000);
     // Start DRP task
     drpTask.start(mbed::callback(drp_task));
@@ -276,7 +274,11 @@ void setup() {
 }
 
 void loop() {
-    rtos::ThisThread::sleep_for(osWaitForever);
+    //rtos::ThisThread::sleep_for(osWaitForever);
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(1000);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(1000);
 }
 
  
