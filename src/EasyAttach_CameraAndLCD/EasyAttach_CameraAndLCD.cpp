@@ -103,7 +103,7 @@ static const DisplayBase::lcd_config_t * lcd_port_init(DisplayBase& Display) {
    #if defined(TARGET_RZ_A2M_SBEV) || defined(TARGET_SEMB1402)
     mbed::I2C mI2c_(PD_5, PD_4);
    #else
-    mbed::I2C mI2c_(I2C_SDA, I2C_SCL);
+    mbed::I2C mI2c_(PD_7, PD_6);
    #endif
     mI2c_.write(0x78, send_cmd, 3);
 #elif (MBED_CONF_APP_LCD_TYPE == GR_PEACH_4_3INCH_SHIELD) || \
